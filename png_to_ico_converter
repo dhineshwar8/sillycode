@@ -24,7 +24,7 @@ def png_to_ico(png_path, ico_path, sizes=[16, 32, 48, 64, 128, 256]):
         print(f"Error: {e}")
 
 # Replace with your file paths
-png_path = r"C:\Users\DELL\Desktop\uyir\logo.png"  # Path to the PNG file
+png_path = r".png"  # Path to the PNG file
 ico_path = r"C:\Users\DELL\Desktop\uyir\logo.ico"  # Path to save the ICO file
 
 # Convert PNG to ICO
