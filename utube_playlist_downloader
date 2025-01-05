@@ -1,0 +1,30 @@
+import os
+from yt_dlp import YoutubeDL
+
+def download_playlist(playlist_url, save_path, start_index=1):
+    os.makedirs(save_path, exist_ok=True)
+
+    # Hook for monitoring download progress
+    def hook(d):
+        if d['status'] == 'finished':
+            print(f"Downloaded: {d['filename']}")
+
+    # Options for yt-dlp
+    options = {
+        'outtmpl': os.path.join(save_path, '%(playlist_index)s.%(title)s.%(ext)s'),  # Save with playlist index
+        'format': 'best',  # Best available quality
+        'noplaylist': False,  # Ensure the entire playlist is downloaded
+        'quiet': False,  # Show progress
+        'progress_hooks': [hook],  # Attach a progress hook for debugging
+        'playliststart': start_index,  # Start downloading from the specified video index
+    }
+
+    with YoutubeDL(options) as ydl:
+        ydl.download([playlist_url])
+
+# Replace with your playlist URL and desired save path
+playlist_url = ""
+save_path = r".\sample"  # Folder to save videos
+start_index = 00  # Start downloading from the n-th video
+
+download_playlist(playlist_url, save_path, start_index)
