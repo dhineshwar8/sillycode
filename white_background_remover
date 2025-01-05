@@ -30,8 +30,8 @@ def remove_white_background(input_path, output_path, threshold=200):
     print(f"Processed image saved to {output_path}")
 
 # Example usage
-input_image = "C:/Users/DELL/Desktop/uyir/images.jpg"  # Replace with your image path
-output_image = "C:/Users/DELL/Desktop/uyir/uyir.png"  # Replace with your desired output path
+input_image = ".jpg"  # Replace with your image path
+output_image = ".png"  # Replace with your desired output path
 remove_white_background(input_image, output_image)
 
 
