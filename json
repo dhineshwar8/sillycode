@@ -1,27 +1,70 @@
 import json
 
 def load_json(file_path):
+    """Load JSON data from a file."""
     try:
         with open(file_path, 'r') as file:
             return json.load(file)
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
+        return None
 
-def compare_json(json1, json2, path=""):
-    if json1 == json2: return
-    if isinstance(json1, dict) and isinstance(json2, dict):
-        for key in set(json1) | set(json2):
-            compare_json(json1.get(key), json2.get(key), f"{path}/{key}" if path else key)
-    elif isinstance(json1, list) and isinstance(json2, list):
-        for i, (item1, item2) in enumerate(zip(json1, json2)):
-            compare_json(item1, item2, f"{path}[{i}]")
-        if len(json1) != len(json2): print(f"List size mismatch at '{path}'")
+def compare_objects(obj1, obj2, path=""):
+    """Compare two JSON objects recursively and print differences."""
+    if obj1 == obj2:
+        return  # No difference at this level
+
+    if isinstance(obj1, dict) and isinstance(obj2, dict):
+        keys1, keys2 = set(obj1.keys()), set(obj2.keys())
+
+        for key in keys1.union(keys2):
+            new_path = f"{path}/{key}" if path else key
+            if key in obj1 and key in obj2:
+                compare_objects(obj1[key], obj2[key], new_path)
+            elif key in obj1:
+                print(f"Key '{new_path}' is missing in the second JSON.")
+            else:
+                print(f"Key '{new_path}' is missing in the first JSON.")
+
+    elif isinstance(obj1, list) and isinstance(obj2, list):
+        for index, (item1, item2) in enumerate(zip(obj1, obj2)):
+            compare_objects(item1, item2, f"{path}[{index}]")
+        if len(obj1) != len(obj2):
+            print(f"List size mismatch at '{path}'")
+
     else:
-        print(f"Difference at '{path}':\n - First JSON: {json1}\n - Second JSON: {json2}")
+        print(f"Difference at '{path}':")
+        print(f" - First JSON: {obj1}")
+        print(f" - Second JSON: {obj2}")
 
-def main():
-    json1, json2 = load_json("file1.json"), load_json("file2.json")
-    if json1 and json2: compare_json(json1, json2)
+def compare_json_files(file1, file2, primary_key):
+    """Compare JSON files based on the primary key."""
+    json1, json2 = load_json(file1), load_json(file2)
+    if json1 is None or json2 is None:
+        return
+
+    print("Comparing JSON files...")
+
+    # Create dictionaries with primary key values for easy comparison
+    json1_dict = {obj[primary_key]: obj for obj in json1}
+    json2_dict = {obj[primary_key]: obj for obj in json2}
+
+    # Compare keys in both dictionaries
+    keys1, keys2 = set(json1_dict.keys()), set(json2_dict.keys())
+
+    # Find missing items in each JSON
+    for key in keys1 - keys2:
+        print(f"Missing in second JSON: {key}")
+    for key in keys2 - keys1:
+        print(f"Missing in first JSON: {key}")
+
+    # Compare common items by their primary key
+    for key in keys1 & keys2:
+        compare_objects(json1_dict[key], json2_dict[key], path=key)
 
 if __name__ == "__main__":
-    main()
+    file1 = "file1.json"  # Path to the first JSON file
+    file2 = "file2.json"  # Path to the second JSON file
+    primary_key = "name"   # Primary key for comparison
+
+    compare_json_files(file1, file2, primary_key)
