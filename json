@@ -6,45 +6,22 @@ def load_json(file_path):
             return json.load(file)
     except Exception as e:
         print(f"Error loading {file_path}: {e}")
-        return None
 
 def compare_json(json1, json2, path=""):
-    if json1 == json2:
-        return  # No difference at this level
-
+    if json1 == json2: return
     if isinstance(json1, dict) and isinstance(json2, dict):
-        keys1, keys2 = set(json1.keys()), set(json2.keys())
-
-        for key in keys1.union(keys2):
-            new_path = f"{path}/{key}" if path else key
-            if key in json1 and key in json2:
-                compare_json(json1[key], json2[key], new_path)
-            elif key in json1:
-                print(f"Key '{new_path}' missing in second JSON.")
-            else:
-                print(f"Key '{new_path}' missing in first JSON.")
-
+        for key in set(json1) | set(json2):
+            compare_json(json1.get(key), json2.get(key), f"{path}/{key}" if path else key)
     elif isinstance(json1, list) and isinstance(json2, list):
-        for index, (item1, item2) in enumerate(zip(json1, json2)):
-            compare_json(item1, item2, f"{path}[{index}]")
-        if len(json1) != len(json2):
-            print(f"List size mismatch at '{path}'")
-
+        for i, (item1, item2) in enumerate(zip(json1, json2)):
+            compare_json(item1, item2, f"{path}[{i}]")
+        if len(json1) != len(json2): print(f"List size mismatch at '{path}'")
     else:
-        print(f"Difference at '{path}':")
-        print(f" - First JSON: {json1}")
-        print(f" - Second JSON: {json2}")
+        print(f"Difference at '{path}':\n - First JSON: {json1}\n - Second JSON: {json2}")
 
 def main():
-    file1 = "file1.json"  # Path to the first JSON file
-    file2 = "file2.json"  # Path to the second JSON file
-
-    json1 = load_json(file1)
-    json2 = load_json(file2)
-
-    if json1 is not None and json2 is not None:
-        print("Comparing JSON files...")
-        compare_json(json1, json2)
+    json1, json2 = load_json("file1.json"), load_json("file2.json")
+    if json1 and json2: compare_json(json1, json2)
 
 if __name__ == "__main__":
     main()
